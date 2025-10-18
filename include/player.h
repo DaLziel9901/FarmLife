@@ -1,20 +1,34 @@
-﻿// include/Player.hpp
-
+﻿
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <string>
 #include <map>
 #include "Crop.h" 
 
-class Player
+//Tốc độ di chuyển người chơi
+const float PLAYER_SPEED = 150.0f;
+const int PLAYER_FRAME_WIDTH = 32;
+const int PLAYER_FRAME_HEIGHT = 64;
+
+class Player : public sf::Drawable, public sf::Transformable
 {
 public:
     Player(long long initialMoney, const std::string& startingSeed);
 
+	// --- Core Game Loop Methods ---
+	void update(float deltaTime);
+    
+	// Xử lý input từ người chơi
+    void handleInput();
+
+
+	// --- Inven & Money Methods ---
     // Getters
     long long getMoney() const;
     const std::map<std::string, int>& getInventory() const;
     const std::string& getSelectedSeed() const;
+	const sf::Sprite& getSprite() const { return m_sprite; }
 
     // Actions
     void addMoney(long long amount);
@@ -27,7 +41,17 @@ public:
     void setSelectedSeed(const std::string& cropName);
 
 private:
+
+	sf::Texture m_texture;
+	sf::Sprite m_sprite;
+
     long long m_money;
     std::map<std::string, int> m_inventory;
     std::string m_selectedSeed;
+
+	//---Movement---
+	sf::Vector2f m_velocity; // Vận tốc hiện tại
+
+    // Vẽ người chơi
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

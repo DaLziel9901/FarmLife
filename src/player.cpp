@@ -1,12 +1,37 @@
-﻿// src/Player.cpp
-
+﻿
 #include "player.h"
 #include "Crop.h"
 #include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <SFML/Window/Keyboard.hpp>
 
 Player::Player(long long initialMoney, const std::string& startingSeed)
     : m_money(initialMoney)
 {
+	// Texture và Sprite người chơi
+    if (!m_texture.loadFromFile(RESOURCES_PATH "Sprite/farmer.png"))
+    {
+		std::cerr << "[Player] Error loading farmer.png" << std::endl;
+		//Thiết lập kích thước sprite mặc định nếu không load được hình
+		m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64));
+    }
+    else
+    {
+		// Thiết lập sprite với texture đã load
+		std::cout << "[Player] Successfully loaded farmer.png" << std::endl;
+		m_sprite.setTexture(m_texture);
+        m_sprite.setTextureRect(sf::IntRect(0, 0, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT));
+
+        //Scale
+		m_sprite.setScale(2.0f, 2.0f);
+
+        m_sprite.setOrigin(PLAYER_FRAME_WIDTH / 2.f, PLAYER_FRAME_HEIGHT / 2.f); // Trung tâm sprite
+    }
+
+    // Thiết lập vị trí ban đầu của player
+    m_sprite.setPosition(150.0f, 150.0f);
+
     // Cấp cho người chơi 5 hạt giống loại ban đầu
     if (CropDatabase.count(startingSeed)) {
         m_inventory[startingSeed] = 5;
@@ -15,6 +40,62 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
     else {
         m_selectedSeed = "";
     }
+
+    m_sprite.setColor(sf::Color::White);
+}
+
+// --- Logic di chuyển người chơi ---
+void Player::handleInput()
+{
+	// Reset vận tốc every frame
+    m_velocity = sf::Vector2f(0.0f, 0.0f);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    {
+        m_velocity.y -= 1.0f;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        m_velocity.y += 1.0f;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    {
+        m_velocity.x -= 1.0f;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    {
+        m_velocity.x += 1.0f;
+    }
+
+    if (m_velocity.x != 0.0f || m_velocity.y != 0.0f)
+    {
+        float length = std::sqrt(m_velocity.x * m_velocity.x + m_velocity.y * m_velocity.y);
+        m_velocity.x /= length;
+        m_velocity.y /= length;
+    }
+
+    if (m_velocity.x != 0.0f || m_velocity.y != 0.0f)
+    {
+        m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64)); // Walking frame
+    }
+    else
+    {
+        // Idle frame
+        m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64));
+    }
+}
+
+void Player::update(float deltaTime)
+{
+    // Cập nhật vị trí người chơi dựa trên vận tốc và thời gian delta
+    sf::Vector2f movement = (m_velocity * PLAYER_SPEED * deltaTime);
+    m_sprite.move(movement);
+}
+
+void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+	//Vẽ sprite người chơi
+    target.draw(m_sprite, states);
 }
 
 long long Player::getMoney() const

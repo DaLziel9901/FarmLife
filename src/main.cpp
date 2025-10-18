@@ -188,7 +188,7 @@ int main()
 	imguiThemes::red();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.FontGlobalScale = 1.5f;
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_WindowBg].w = 0.9f;
@@ -201,6 +201,7 @@ int main()
 	// Khởi tạo khu đất nông trại
 	initializeFarmPlots(gameFarmPlots, 50, 50, PLOT_SIZE);
 
+	
 
 	sf::Clock clock;
 	while (window.isOpen())
@@ -212,7 +213,6 @@ int main()
 #pragma region imgui
 			ImGui::SFML::ProcessEvent(window, event);
 #pragma endregion
-
 
 			if (event.type == sf::Event::Closed)
 				window.close();
@@ -237,8 +237,14 @@ int main()
 
 #pragma region imgui
 		ImGui::SFML::Update(window, deltaTime);
-		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+		//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 #pragma endregion
+
+		// Xử lý input người chơi
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+			gamePlayer.handleInput();
+
+		gamePlayer.update(deltaTimeSeconds);
 
 		// 1. Cập nhật logic game
 		for (auto& plot : gameFarmPlots)
@@ -249,7 +255,7 @@ int main()
 		// 2. Render UI
 		// Truyền Player và FarmPlots vào hàm
 		renderGameUI(gamePlayer, gameFarmPlots);
-
+		
 
 		// 3. Render SFML
 		window.clear(sf::Color(100, 200, 100));
@@ -259,6 +265,9 @@ int main()
 		{
 			window.draw(plot);
 		}
+
+		// Vẽ người chơi
+		window.draw(gamePlayer);
 
 #pragma region imgui
 		ImGui::SFML::Render(window);
