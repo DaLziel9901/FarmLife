@@ -5,6 +5,9 @@
 #include <string>
 #include <map>
 #include "Crop.h" 
+#include "Animation.h"
+
+enum class Direction { Down = 0, Left, Right, Up };
 
 //Tốc độ di chuyển người chơi
 const float PLAYER_SPEED = 150.0f;
@@ -51,7 +54,12 @@ private:
 
 	//---Movement---
 	sf::Vector2f m_velocity; // Vận tốc hiện tại
+	bool m_isMoving; // Trạng thái di chuyển
 
     // Vẽ người chơi
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+	// Animation and Direction
+    Direction m_direction;
+    Animation* m_anim;
 };

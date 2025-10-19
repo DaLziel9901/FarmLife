@@ -1,4 +1,4 @@
-﻿
+﻿#include "Animation.h"
 #include "player.h"
 #include "Crop.h"
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <SFML/Window/Keyboard.hpp>
 
 Player::Player(long long initialMoney, const std::string& startingSeed)
-    : m_money(initialMoney)
+    : m_money(initialMoney) ,m_direction(Direction::Down)
 {
 	// Texture và Sprite người chơi
     if (!m_texture.loadFromFile(RESOURCES_PATH "Sprite/farmer.png"))
@@ -41,7 +41,7 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
         m_selectedSeed = "";
     }
 
-    m_sprite.setColor(sf::Color::White);
+    m_anim = new Animation(m_sprite, 32, 64, 0.15f);
 }
 
 // --- Logic di chuyển người chơi ---
@@ -49,22 +49,31 @@ void Player::handleInput()
 {
 	// Reset vận tốc every frame
     m_velocity = sf::Vector2f(0.0f, 0.0f);
+    bool moving = false;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
         m_velocity.y -= 1.0f;
+        m_direction = Direction::Up; 
+        moving = true;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
         m_velocity.y += 1.0f;
+        m_direction = Direction::Down; 
+        moving = true;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         m_velocity.x -= 1.0f;
+        m_direction = Direction::Left;
+        moving = true;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
         m_velocity.x += 1.0f;
+        m_direction = Direction::Right; 
+        moving = true;
     }
 
     if (m_velocity.x != 0.0f || m_velocity.y != 0.0f)
@@ -82,14 +91,17 @@ void Player::handleInput()
     {
         m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64)); // Idle frame
     }
+	m_isMoving = moving;
 }
 
 void Player::update(float deltaTime)
 {
     // Cập nhật vị trí người chơi dựa trên vận tốc và thời gian delta
-    sf::Vector2f movement = (m_velocity * PLAYER_SPEED * deltaTime);
-    m_sprite.move(movement);
+    m_sprite.move(m_velocity * PLAYER_SPEED * deltaTime);
+    if (m_anim)
+        m_anim->update(deltaTime, static_cast<int>(m_direction), m_isMoving);
 }
+
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
