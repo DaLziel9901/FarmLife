@@ -24,13 +24,14 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
         m_sprite.setTextureRect(sf::IntRect(0, 0, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT));
 
         //Scale
-		m_sprite.setScale(2.0f, 2.0f);
+		m_sprite.setScale(1.0f, 1.0f);
 
         m_sprite.setOrigin(PLAYER_FRAME_WIDTH / 2.f, PLAYER_FRAME_HEIGHT / 2.f); // Trung tâm sprite
     }
 
     // Thiết lập vị trí ban đầu của player
-    m_sprite.setPosition(150.0f, 150.0f);
+    m_sprite.setPosition(466.0f, 545.0f);
+    setPosition(m_sprite.getPosition());
 
     // Cấp cho người chơi 5 hạt giống loại ban đầu
     if (CropDatabase.count(startingSeed)) {

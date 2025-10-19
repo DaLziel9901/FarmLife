@@ -19,10 +19,7 @@ class Player : public sf::Drawable, public sf::Transformable
 public:
     Player(long long initialMoney, const std::string& startingSeed);
 
-	// --- Core Game Loop Methods ---
 	void update(float deltaTime);
-    
-	// Xử lý input từ người chơi
     void handleInput();
 
 
