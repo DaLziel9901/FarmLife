@@ -222,14 +222,12 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
                 {
                     player.addHarvestedCrop(crop);
                     plot.resetToDry();
-                    std::cout << "Đã thu hoạch, đất trở về khô.\n";
                 }
             }
             else if (plot.isEmpty() && !plot.isWatered())
             {
                 // Tưới đất
                 plot.water();
-                std::cout << "Đã tưới nước ô đất!\n";
             }
             else if (plot.isEmpty() && plot.isWatered() && !selectedSeed.empty())
             {
@@ -237,7 +235,6 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
                 if (player.tryPlantSelectedSeed(selectedSeed))
                 {
                     plot.plant(selectedSeed);
-                    std::cout << "Đã trồng " << selectedSeed << "!\n";
                 }
             }
 

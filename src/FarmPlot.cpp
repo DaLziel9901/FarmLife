@@ -59,6 +59,10 @@ void loadFarmPlotsFromCSV(const std::string& csvFile,
 sf::Texture FarmPlot::s_texture;
 
 FarmPlot::FarmPlot(float x, float y, float size)
+    : m_stage(CropStage::Empty)
+    , m_timeInStage(0.0f)
+    , m_highlighted(false)
+    , m_soilState(SoilState::Dry)
 {
     if (s_texture.getSize().x == 0)
         s_texture.loadFromFile(RESOURCES_PATH "Tilesets/Decor.png");
