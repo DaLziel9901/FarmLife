@@ -19,7 +19,7 @@ FarmPlot::FarmPlot(float x, float y, float size) :
     m_shape.setOutlineColor(sf::Color::Black);
 }
 
-// Giả định: Phương thức update
+//Phương thức update
 void FarmPlot::update(float deltaTime)
 {
     if (m_stage == CropStage::Empty || m_stage == CropStage::Dead || m_cropName.empty())

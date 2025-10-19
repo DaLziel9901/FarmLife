@@ -80,8 +80,7 @@ void Player::handleInput()
     }
     else
     {
-        // Idle frame
-        m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64));
+        m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64)); // Idle frame
     }
 }
 
@@ -170,25 +169,11 @@ bool Player::tryPlantSelectedSeed(const std::string& seedName)
     if (m_inventory.count(seedName) && m_inventory.at(seedName) > 0)
     {
         m_inventory[seedName]--;
-
-        // Nếu dùng hết hạt giống đang chọn, tìm hạt giống khác có sẵn để chọn
-        if (m_inventory[seedName] == 0)
-        {
-            std::string nextSeed = "";
-            for (auto const& [name, count] : m_inventory) {
-                if (count > 0 && CropDatabase.count(name)) {
-                    nextSeed = name;
-                    break;
-                }
-            }
-            m_selectedSeed = nextSeed;
-        }
         return true;
     }
-
-    std::cout << "[Player] No " << seedName << " seeds left in inventory." << std::endl;
     return false;
 }
+
 
 void Player::addHarvestedCrop(const std::string& cropName)
 {
@@ -202,9 +187,5 @@ void Player::setSelectedSeed(const std::string& cropName)
     {
         m_selectedSeed = cropName;
         std::cout << "[Player] Selected seed: " << cropName << std::endl;
-    }
-    else
-    {
-        std::cout << "[Player] Cannot select " << cropName << ". Not in inventory." << std::endl;
     }
 }

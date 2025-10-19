@@ -1,20 +1,12 @@
 ﻿#include "GameUI.h"
-#include "player.h"  // Cần thiết để truy cập các phương thức của Player
-#include "FarmPlot.h" // Cần thiết để truy cập các phương thức của FarmPlot
-#include "Crop.h" // Cần thiết cho CropStage và CropDatabase
-
-// === HÀM HELPER getCropStageName (DI CHUYỂN TỪ main.cpp) ===
-// Giả định rằng CropStage được định nghĩa trong Crop.h
-
-
-// ===========================================================
-
+#include "player.h"  
+#include "FarmPlot.h"
+#include "Crop.h"
 
 namespace GameUI
 {
     void init(sf::RenderWindow& window)
     {
-        // Khởi tạo và thiết lập cấu hình ImGui từ #pragma region imgui cũ
         ImGui::SFML::Init(window);
         imguiThemes::red();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -38,39 +30,74 @@ namespace GameUI
 
     void render(Player& player, const std::vector<FarmPlot>& plots)
     {
-        // === NỘI DUNG TỪ HÀM renderGameUI CŨ ===
-
-        // *LƯU Ý*: Hàm này dựa vào biến toàn cục/extern 'CropDatabase'
-        // được giả định là có thể truy cập được thông qua Crop.h
-
         ImGui::SetNextWindowPos(ImVec2(550, 50), ImGuiCond_Once);
         ImGui::Begin("Shop & Inventory");
 
-        ImGui::Text("💰 Money: %lld", player.getMoney());
+        ImGui::Text(" Money: %lld", player.getMoney());
         ImGui::Separator();
 
         // --- SEED SELECTION ---
         const std::string& selectedSeed = player.getSelectedSeed();
+        std::string displaySeed = "NONE";
+        const auto& inventory = player.getInventory();
+
+        // Nếu còn hạt thì hiển thị tên, nếu hết thì reset về NONE
+        if (!selectedSeed.empty())
+        {
+            auto it = inventory.find(selectedSeed);
+            if (it != inventory.end() && it->second > 0)
+            {
+                displaySeed = selectedSeed;
+            }
+            else
+            {
+                // Nếu hạt đang chọn đã hết thì reset
+                if (!player.getSelectedSeed().empty())
+                    player.setSelectedSeed("");
+            }
+        }
+
         ImGui::Text("Current Seed:");
         ImGui::SameLine();
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s", selectedSeed.empty() ? "NONE" : selectedSeed.c_str());
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s", displaySeed.c_str());
 
         if (ImGui::CollapsingHeader("Seed Selection"))
         {
             const auto& inventory = player.getInventory();
+            const std::string& selectedSeed = player.getSelectedSeed();
+
             for (auto const& [name, data] : CropDatabase)
             {
-                if (inventory.count(name) && inventory.at(name) > 0)
+                int count = inventory.count(name) ? inventory.at(name) : 0;
+                bool isSelected = (name == selectedSeed);
+
+                // Đặt màu nền đặc biệt cho loại đang chọn
+                if (isSelected)
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.7f, 0.3f, 1.0f));
+
+                // Nếu hết hạt => disable button
+                if (count <= 0)
                 {
-                    int count = inventory.at(name);
-                    std::string display = name + " Seeds (" + std::to_string(count) + ")";
-                    if (ImGui::Button(display.c_str()))
+                    ImGui::BeginDisabled();
+                    ImGui::Button((name + " Seeds (" + std::to_string(count) + ")").c_str(), ImVec2(180, 0));
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("Out of seeds!");
+                    ImGui::EndDisabled();
+                }
+                else
+                {
+                    std::string label = data.name + " Seeds (" + std::to_string(count) + ")";;
+                    if (ImGui::Button(label.c_str(), ImVec2(180, 0)))
                     {
                         player.setSelectedSeed(name);
                     }
                 }
+
+                if (isSelected)
+                    ImGui::PopStyleColor();
             }
         }
+
 
         ImGui::Separator();
 
@@ -190,12 +217,13 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
                 }
                 else if (plot.isEmpty() && !selectedSeed.empty())
                 {
-                    // Trồng cây
-                    if (player.tryPlantSelectedSeed(selectedSeed))
+                    std::string seedToPlant = selectedSeed; 
+                    if (player.tryPlantSelectedSeed(seedToPlant))   
                     {
-                        plot.plant(selectedSeed);
+                        plot.plant(seedToPlant);                    
                     }
                 }
+
             }
             break;
         }

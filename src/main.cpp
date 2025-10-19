@@ -17,12 +17,13 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(900, 650), "SFML Farming Game");
 	window.setFramerateLimit(60);
 
-	GameUI::init(window); // Khởi tạo ImGui
+	GameUI::init(window);
 
 	// ---------------------------------- INIT WINDOW ----------------------------------
 
 	// ---------------------------------- INIT OBJ  ----------------------------------
-	Player gamePlayer(200, "Carrot"); 
+
+	Player gamePlayer(200, "Carrot");
 	std::vector<FarmPlot> gameFarmPlots;
 	initializeFarmPlots(gameFarmPlots, 50, 50, PLOT_SIZE);
 
@@ -61,17 +62,17 @@ int main()
 
 		if (!GameUI::isKeyboardCaptured())
 			gamePlayer.handleInput();
-
 		gamePlayer.update(deltaTimeSeconds);
 		for (auto& plot : gameFarmPlots)
-		{	plot.update(deltaTimeSeconds);	}
+			plot.update(deltaTimeSeconds);	
 		GameUI::render(gamePlayer, gameFarmPlots);
 		// ---------------------------------- UPDATE ----------------------------------
+
 
 		// ---------------------------------- DRAW ----------------------------------
 		window.clear(sf::Color(100, 200, 100));
 		for (const auto& plot : gameFarmPlots)
-		{	window.draw(plot);	}
+			window.draw(plot);	
 		window.draw(gamePlayer);
 
 		GameUI::renderImGui(window);
