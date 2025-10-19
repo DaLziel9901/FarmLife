@@ -65,7 +65,12 @@ int main()
 		"Decor");
 
 
-	initializeFarmPlots(gameFarmPlots, 50, 50, PLOT_SIZE);
+	loadFarmPlotsFromCSV(
+		RESOURCES_PATH "GameMap/GameMap_FarmPlot.csv",
+		gameFarmPlots,
+		32.f // tile size
+	);
+
 
 	// ---------------------------------- INIT OBJ  ----------------------------------
 
@@ -89,10 +94,9 @@ int main()
 			else if (event.type == sf::Event::MouseButtonReleased)
 			{
 				if (!GameUI::isMouseCaptured())
-					handlePlotInteraction(window, event.mouseButton, gamePlayer, gameFarmPlots);
+					handlePlotInteraction(window, event.mouseButton, gamePlayer, gameFarmPlots, camera.getView());
 			}
 		}
-		
 
 		// Tính toán Delta Time
 		sf::Time deltaTime = clock.restart();
@@ -112,16 +116,48 @@ int main()
 
 		for (auto& plot : gameFarmPlots)
 			plot.update(deltaTimeSeconds);	
+		sf::Vector2f mouseWorld = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+		for (auto& plot : gameFarmPlots)
+		{
+			bool isHover = plot.getGlobalBounds().contains(mouseWorld);
+			plot.setHighlight(isHover);
+		}
+		//static sf::Clock debugClock;
+		//if (debugClock.getElapsedTime().asSeconds() > 0.5f) // in mỗi 0.5 giây
+		//{
+		//	sf::Vector2f playerPos = gamePlayer.getSprite().getPosition();
+		//	sf::Vector2f camCenter = camera.getCenter();
+		//	sf::Vector2f camSize = camera.getSize();
+
+		//	std::cout << "Player at (" << playerPos.x << ", " << playerPos.y << ")";
+		//	std::cout << "Camera center: (" << camCenter.x << ", " << camCenter.y << ")";
+		//	std::cout << "View size : (" << camSize.x << ", " << camSize.y << ")\n";
+
+		//	debugClock.restart();
+		//}
 		GameUI::render(gamePlayer, gameFarmPlots);
 		// ---------------------------------- UPDATE ----------------------------------
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+			std::cout << "Watering all farm plots.\n" << std::endl;
+			for (auto& plot : gameFarmPlots)
+			{
+				plot.water();
 
-		// ---------------------------------- DRAW ----------------------------------
+				auto pos = plot.getGlobalBounds();
+				std::cout << "Watered plot at: ("
+					<< pos.left << ", " << pos.top << ")\n";
+			}
+		}
+
+		
+		// ---------------------------------- DRAW ------------------------------------
 		window.clear();
 
 		camera.applyTo(window);
 		window.draw(gameMap);
-		/*for (const auto& plot : gameFarmPlots)
-			window.draw(plot);	*/
+		for (const auto& plot : gameFarmPlots)
+			window.draw(plot);	
 		window.draw(gamePlayer);
 
 		window.setView(window.getDefaultView());

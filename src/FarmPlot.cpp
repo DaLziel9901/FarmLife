@@ -1,22 +1,77 @@
 ﻿#include "FarmPlot.h"
-// Giả định rằng Crop.h chứa enum CropStage và CropDatabase
 #include "Crop.h" 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+
+
 
 using namespace FarmGlobals;
 
-FarmPlot::FarmPlot(float x, float y, float size) :
-    m_cropName(""),
-    m_stage(CropStage::Empty),
-    m_timeInStage(0.0f)
+void loadFarmPlotsFromCSV(const std::string& csvFile,
+    std::vector<FarmPlot>& plots,
+    float tileSize)
 {
-    m_shape.setSize(sf::Vector2f(size, size));
-    m_shape.setPosition(x, y);
-    // Màu đất mặc định
-    m_shape.setFillColor(sf::Color(139, 69, 19));
-    m_shape.setOutlineThickness(1.f);
-    m_shape.setOutlineColor(sf::Color::Black);
+    plots.clear();
+
+    std::ifstream file(csvFile);
+    if (!file.is_open()) {
+        std::cerr << "Cannot open farmplot CSV: " << csvFile << std::endl;
+        return;
+    }
+
+    std::vector<int> ids;
+    std::string line;
+    unsigned int width = 0, height = 0;
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string val;
+        unsigned int count = 0;
+        while (std::getline(ss, val, ',')) {
+            if (!val.empty()) {
+                ids.push_back(std::stoi(val));
+                ++count;
+            }
+        }
+        if (width == 0) width = count;
+        ++height;
+    }
+
+    file.close();
+
+    // Tạo FarmPlot ở những ô có ID khác -1
+    for (unsigned int y = 0; y < height; ++y) {
+        for (unsigned int x = 0; x < width; ++x) {
+            int id = ids[x + y * width];
+            if (id >= 0) {
+                float worldX = x * tileSize;
+                float worldY = y * tileSize;
+                plots.emplace_back(worldX, worldY, tileSize);
+            }
+        }
+    }
+
+    std::cout << "Loaded " << plots.size() << " farm plots from " << csvFile << std::endl;
+}
+
+sf::Texture FarmPlot::s_texture;
+
+FarmPlot::FarmPlot(float x, float y, float size)
+{
+    if (s_texture.getSize().x == 0)
+        s_texture.loadFromFile(RESOURCES_PATH "Tilesets/Decor.png");
+
+    m_sprite.setTexture(s_texture);
+
+    const int tilesPerRow = 16; // vì texture 512x512 và mỗi tile 32x32
+    int id = 32; // đất khô
+    int tu = id % tilesPerRow;
+    int tv = id / tilesPerRow;
+
+    m_sprite.setTextureRect(sf::IntRect(tu * 32, tv * 32, 32, 32));
+    m_sprite.setPosition(x, y);
 }
 
 //Phương thức update
@@ -31,7 +86,6 @@ void FarmPlot::update(float deltaTime)
     if (m_stage == CropStage::Harvestable)
     {
         // Cây đã sẵn sàng thu hoạch, không cần tăng thời gian nữa.
-        m_shape.setFillColor(sf::Color(100, 250, 100)); // Màu xanh lá cây cho cây có thể thu hoạch
         return;
     }
 
@@ -46,13 +100,11 @@ void FarmPlot::update(float deltaTime)
         {
             m_stage = CropStage::Growing;
             m_timeInStage = 0.0f;
-            m_shape.setFillColor(sf::Color(150, 150, 80)); // Màu xanh non cho cây đang lớn
         }
         else if (m_stage == CropStage::Growing && m_timeInStage >= data.growthDuration)
         {
             m_stage = CropStage::Harvestable;
             m_timeInStage = 0.0f;
-            m_shape.setFillColor(sf::Color(100, 250, 100)); // Màu xanh lá cây đậm cho cây có thể thu hoạch
         }
     }
     else
@@ -61,7 +113,6 @@ void FarmPlot::update(float deltaTime)
         std::cerr << "Lỗi: Không tìm thấy CropData cho " << m_cropName << std::endl;
         m_stage = CropStage::Empty;
         m_cropName = "";
-        m_shape.setFillColor(sf::Color(139, 69, 19));
     }
 }
 
@@ -72,7 +123,53 @@ void FarmPlot::plant(const std::string& cropName)
     m_cropName = cropName;
     m_stage = CropStage::Seed;
     m_timeInStage = 0.0f;
-    m_shape.setFillColor(sf::Color(160, 82, 45)); // Màu hơi nâu đậm cho đất đã gieo hạt
+}
+
+void FarmPlot::setHighlight(bool value)
+{
+    m_highlighted = value;
+}
+
+void FarmPlot::updateTexture()
+{
+    // Mỗi tile có kích thước 32x32
+    sf::IntRect rect;
+
+    if (m_soilState == SoilState::Dry)
+        rect = sf::IntRect(0, 0, 32, 32);     // Ô đất khô
+    else if (m_soilState == SoilState::Wet)
+        rect = sf::IntRect(32, 0, 32, 32);    // Ô đất ướt (ID = 32)
+
+    m_sprite.setTextureRect(rect);
+}
+
+void FarmPlot::water()
+{
+    m_soilState = SoilState::Wet;
+
+    const int tilesPerRow = 16; // 512 / 32
+    int id = 48;                // tile ID cho đất ướt
+    int tu = id % tilesPerRow;
+    int tv = id / tilesPerRow;
+
+    m_sprite.setTextureRect(sf::IntRect(tu * 32, tv * 32, 32, 32));
+}
+
+bool FarmPlot::isWatered() const
+{
+    return m_soilState == SoilState::Wet;
+}
+
+void FarmPlot::resetToDry()
+{
+    m_soilState = SoilState::Dry;
+
+    const int tilesPerRow = 16; // 512 / 32
+    int id = 32;                // tile ID cho đất khô
+    int tu = id % tilesPerRow;
+    int tv = id / tilesPerRow;
+
+    m_sprite.setTextureRect(sf::IntRect(tu * 32, tv * 32, 32, 32));
 }
 
 std::string FarmPlot::harvest()
@@ -83,7 +180,6 @@ std::string FarmPlot::harvest()
         m_cropName = "";
         m_stage = CropStage::Empty;
         m_timeInStage = 0.0f;
-        m_shape.setFillColor(sf::Color(139, 69, 19)); // Trở lại màu đất trống
         return harvestedCrop;
     }
     return ""; // Trả về chuỗi rỗng nếu không thu hoạch được
@@ -106,22 +202,18 @@ const std::string& FarmPlot::getCropName() const
 
 sf::FloatRect FarmPlot::getGlobalBounds() const
 {
-    return m_shape.getGlobalBounds();
+    return m_sprite.getGlobalBounds();
 }
 
 void FarmPlot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(m_shape, states);
-    // TODO: Thêm logic vẽ hình ảnh cây trồng dựa trên stage tại đây
-}
+    target.draw(m_sprite, states);
 
-void initializeFarmPlots(std::vector<FarmPlot>& plots, int startX, int startY, float plotSize)
-{
-    for (int y = 0; y < NUM_PLOTS_Y; ++y)
-    {
-        for (int x = 0; x < NUM_PLOTS_X; ++x)
-        {
-            plots.emplace_back(startX + x * plotSize, startY + y * plotSize, plotSize);
-        }
+    if (m_highlighted) {
+        sf::RectangleShape overlay;
+        overlay.setSize(sf::Vector2f(m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height));
+        overlay.setPosition(m_sprite.getGlobalBounds().left, m_sprite.getGlobalBounds().top);
+        overlay.setFillColor(sf::Color(255, 255, 0, 60)); // vàng trong suốt
+        target.draw(overlay, states);
     }
 }

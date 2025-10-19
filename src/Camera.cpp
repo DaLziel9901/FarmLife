@@ -36,3 +36,9 @@ void Camera::applyTo(sf::RenderWindow& window) {
 void Camera::setZoom(float factor) {
     m_view.zoom(factor);
 }
+sf::Vector2f Camera::getCenter() const {
+    return m_view.getCenter();
+}
+sf::Vector2f Camera::getSize() const {
+    return m_view.getSize();
+}

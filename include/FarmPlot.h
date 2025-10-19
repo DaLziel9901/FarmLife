@@ -2,18 +2,17 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "Crop.h" // Cần thiết cho CropStage
+#include "Crop.h" 
 
-// GIÁ TRỊ TOÀN CỤC CHO CÁC LỚP SỬ DỤNG
 namespace FarmGlobals
 {
-    // Kích thước khu đất và số lượng ô (Được chuyển từ main.cpp)
     const float PLOT_SIZE = 70.f;
     const int NUM_PLOTS_X = 5;
     const int NUM_PLOTS_Y = 5;
 }
 
 enum class CropStage;
+enum class SoilState { Dry, Wet };
 
 class FarmPlot : public sf::Drawable
 {
@@ -31,14 +30,27 @@ public:
     const std::string& getCropName() const;
     sf::FloatRect getGlobalBounds() const;
 
+    // Tương tác với plot
+    void setHighlight(bool value);
+    void water(); // Tưới nước
+    bool isWatered() const;
+    void resetToDry();
+	void updateTexture();
+
 private:
-    sf::RectangleShape m_shape;
     std::string m_cropName;
     CropStage m_stage;
     float m_timeInStage;
+    sf::Sprite m_sprite;
+    static sf::Texture s_texture;
+
+    bool m_highlighted;
+    SoilState m_soilState;
 
     // Override draw function from sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
-void initializeFarmPlots(std::vector<FarmPlot>& plots, int startX, int startY, float plotSize);
+void loadFarmPlotsFromCSV(const std::string& csvFile,
+    std::vector<FarmPlot>& plots,
+    float tileSize);

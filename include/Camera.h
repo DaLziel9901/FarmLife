@@ -12,6 +12,8 @@ public:
 
     void applyTo(sf::RenderWindow& window);
     void setZoom(float factor);
+    sf::Vector2f getCenter() const; 
+    sf::Vector2f getSize() const;  
     const sf::View& getView() const { return m_view; }
 
 private:

@@ -194,37 +194,53 @@ namespace GameUI
     }
 }
 
-void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButtonEvent& mouse, Player& player, std::vector<FarmPlot>& plots)
+void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButtonEvent& mouse,
+    Player& player, std::vector<FarmPlot>& plots, const sf::View& camera)
 {
-    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Vector2i(mouse.x, mouse.y));
+    sf::Vector2f mousePos = window.mapPixelToCoords(
+        sf::Vector2i(mouse.x, mouse.y), camera
+    );
+
+    std::cout << "Clicked at world position: ("
+        << mousePos.x << ", " << mousePos.y << ")\n";
 
     for (auto& plot : plots)
     {
         if (plot.getGlobalBounds().contains(mousePos))
         {
-            if (mouse.button == sf::Mouse::Left)
+            std::cout << "Hit plot at: ("
+                << plot.getGlobalBounds().left << ", "
+                << plot.getGlobalBounds().top << ")\n";
+
+            const std::string& selectedSeed = player.getSelectedSeed();
+
+            if (plot.getStage() == CropStage::Harvestable)
             {
-                const std::string& selectedSeed = player.getSelectedSeed();
-
-                if (plot.getStage() == CropStage::Harvestable)
+                // Thu hoạch
+                std::string crop = plot.harvest();
+                if (!crop.empty())
                 {
-                    // Thu hoạch
-                    std::string cropName = plot.harvest();
-                    if (cropName != "")
-                    {
-                        player.addHarvestedCrop(cropName);
-                    }
+                    player.addHarvestedCrop(crop);
+                    plot.resetToDry();
+                    std::cout << "Đã thu hoạch, đất trở về khô.\n";
                 }
-                else if (plot.isEmpty() && !selectedSeed.empty())
-                {
-                    std::string seedToPlant = selectedSeed; 
-                    if (player.tryPlantSelectedSeed(seedToPlant))   
-                    {
-                        plot.plant(seedToPlant);                    
-                    }
-                }
-
             }
+            else if (plot.isEmpty() && !plot.isWatered())
+            {
+                // Tưới đất
+                plot.water();
+                std::cout << "Đã tưới nước ô đất!\n";
+            }
+            else if (plot.isEmpty() && plot.isWatered() && !selectedSeed.empty())
+            {
+                // Trồng cây
+                if (player.tryPlantSelectedSeed(selectedSeed))
+                {
+                    plot.plant(selectedSeed);
+                    std::cout << "Đã trồng " << selectedSeed << "!\n";
+                }
+            }
+
             break;
         }
     }
