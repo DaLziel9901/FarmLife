@@ -12,6 +12,7 @@
 #include "Map.h"
 #include "Camera.h"
 #include "AudioManager.h"
+
 using namespace FarmGlobals;
 
 int main()
@@ -98,6 +99,18 @@ int main()
 				if (!GameUI::isMouseCaptured())
 					handlePlotInteraction(window, event.mouseButton, gamePlayer, gameFarmPlots, camera.getView());
 			}
+
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::E)
+				{
+					GameUI::toggleInventory();
+				}
+				if (event.key.code == sf::Keyboard::F3)
+				{
+					GameUI::toggleFarmDebug();
+				}
+			}
 		}
 
 		// Tính toán Delta Time
@@ -118,26 +131,30 @@ int main()
 
 		for (auto& plot : gameFarmPlots)
 			plot.update(deltaTimeSeconds);	
-		sf::Vector2f mouseWorld = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+		sf::Vector2i mousePixel = sf::Mouse::getPosition(window);
+		sf::Vector2f mouseWorld = window.mapPixelToCoords(mousePixel, camera.getView());
 
 		for (auto& plot : gameFarmPlots)
 		{
 			bool isHover = plot.getGlobalBounds().contains(mouseWorld);
 			plot.setHighlight(isHover);
 		}
+
 		//static sf::Clock debugClock;
 		//if (debugClock.getElapsedTime().asSeconds() > 0.5f) // in mỗi 0.5 giây
 		//{
 		//	sf::Vector2f playerPos = gamePlayer.getSprite().getPosition();
 		//	sf::Vector2f camCenter = camera.getCenter();
 		//	sf::Vector2f camSize = camera.getSize();
-
+		//	
 		//	std::cout << "Player at (" << playerPos.x << ", " << playerPos.y << ")";
 		//	std::cout << "Camera center: (" << camCenter.x << ", " << camCenter.y << ")";
 		//	std::cout << "View size : (" << camSize.x << ", " << camSize.y << ")\n";
 
 		//	debugClock.restart();
 		//}
+
 		GameUI::render(gamePlayer, gameFarmPlots);
 		// ---------------------------------- UPDATE ----------------------------------
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
@@ -150,9 +167,7 @@ int main()
 				std::cout << "Watered plot at: ("
 					<< pos.left << ", " << pos.top << ")\n";
 			}
-		}
-
-		
+		}		
 		// ---------------------------------- DRAW ------------------------------------
 		window.clear();
 

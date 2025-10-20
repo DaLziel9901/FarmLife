@@ -27,6 +27,14 @@ namespace GameUI
 
     bool isMouseCaptured();
     bool isKeyboardCaptured();
+
+    void toggleInventory();
+    void toggleFarmDebug();
 }
 
-void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButtonEvent& mouse, Player& player, std::vector<FarmPlot>& plots, const sf::View& camera);
+void handlePlotInteraction(sf::RenderWindow& window, 
+    const sf::Event::MouseButtonEvent& mouse, 
+    Player& player, 
+    std::vector<FarmPlot>& plots, 
+    const sf::View& camera);
+
