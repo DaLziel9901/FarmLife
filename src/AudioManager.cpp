@@ -1,4 +1,5 @@
 ﻿#include "AudioManager.h"
+#include <algorithm>
 
 // --- Singleton Access ---
 AudioManager& AudioManager::getInstance()
@@ -59,18 +60,25 @@ void AudioManager::playSound(const std::string& name)
         std::cerr << "[Audio] Sound not loaded: " << name << std::endl;
         return;
     }
-
-    sf::Sound sound;
-    sound.setBuffer(it->second);
-    sound.setVolume(m_sfxVolume);
-    sound.play();
-    m_activeSounds.push_back(sound);
-
-    // Xóa các sound đã dừng để tránh đầy bộ nhớ
-    m_activeSounds.erase(
-        std::remove_if(m_activeSounds.begin(), m_activeSounds.end(),
-            [](const sf::Sound& s) { return s.getStatus() == sf::Sound::Stopped; }),
-        m_activeSounds.end());
+    
+    auto reuse = std::find_if(
+        m_activeSounds.begin(), m_activeSounds.end(),
+        [](const sf::Sound& sound) { return sound.getStatus() == sf::Sound::Stopped; }
+    );
+    if (reuse != m_activeSounds.end())
+    {
+        reuse->setBuffer(it->second);
+        reuse->setVolume(m_sfxVolume);
+        reuse->play();
+    }
+    else
+    {
+        m_activeSounds.emplace_back();
+        sf::Sound& activeSound = m_activeSounds.back();
+        activeSound.setBuffer(it->second);
+        activeSound.setVolume(m_sfxVolume);
+        activeSound.play();
+    }
 }
 
 void AudioManager::setSfxVolume(float volume)

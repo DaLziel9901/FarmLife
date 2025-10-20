@@ -1,8 +1,10 @@
-﻿#pragma once
+﻿
+#pragma once
 #include <SFML/Audio.hpp>
 #include <map>
 #include <string>
 #include <memory>
+#include <vector>
 #include <iostream>
 
 class AudioManager
@@ -38,4 +40,5 @@ private:
 
     float m_musicVolume = 50.f;
     float m_sfxVolume = 60.f;
+
 };

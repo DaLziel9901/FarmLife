@@ -102,11 +102,6 @@ void Player::update(float deltaTime)
     m_sprite.move(m_velocity * PLAYER_SPEED * deltaTime);
     if (m_anim)
         m_anim->update(deltaTime, static_cast<int>(m_direction), m_isMoving);
-    if (m_isMoving)
-    {
-        AudioManager::getInstance().playSound("step");
-    }
-
 }
 
 
@@ -152,12 +147,8 @@ bool Player::buySeed(const std::string& cropName, int count)
         if (m_selectedSeed.empty() || m_inventory.count(m_selectedSeed) == 0 || m_inventory.at(m_selectedSeed) == 0) {
             m_selectedSeed = cropName;
         }
-
-        std::cout << "[Player] Bought " << count << "x " << cropName << ". Money left: " << m_money << std::endl;
         return true;
     }
-
-    std::cout << "[Player] Not enough money to buy " << cropName << "." << std::endl;
     return false;
 }
 
@@ -185,8 +176,6 @@ bool Player::sellCrop(const std::string& cropName, int count)
     if (m_inventory[cropName] <= 0) m_inventory.erase(cropName);
 
     m_money += totalMoney;
-    std::cout << "Sold " << count << "x " << cropName
-        << " for " << totalMoney << " coins.\n";
     return true;
 }
 
@@ -205,7 +194,6 @@ bool Player::tryPlantSelectedSeed(const std::string& seedName)
 void Player::addHarvestedCrop(const std::string& cropName)
 {
     m_inventory[cropName]++;
-    std::cout << "[Plot] Harvested " << cropName << std::endl;
 }
 
 void Player::setSelectedSeed(const std::string& cropName)
@@ -213,6 +201,5 @@ void Player::setSelectedSeed(const std::string& cropName)
     if (m_inventory.count(cropName) && m_inventory.at(cropName) > 0)
     {
         m_selectedSeed = cropName;
-        std::cout << "[Player] Selected seed: " << cropName << std::endl;
     }
 }
