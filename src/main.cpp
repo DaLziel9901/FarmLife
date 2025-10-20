@@ -28,7 +28,7 @@ int main()
 	// ---------------------------------- INIT OBJ  ----------------------------------
 
 	Map gameMap;
-	Player gamePlayer(200, "Carrot");
+	Player gamePlayer(200, "Cà rốt");
 	Camera camera(900.0f, 600.0f);
 	camera.setZoom(0.5f);
 	std::vector<FarmPlot> gameFarmPlots;
@@ -73,6 +73,13 @@ int main()
 
 	FarmPlot::s_cropTexture.loadFromFile(RESOURCES_PATH "Tilesets/crops.png");
 
+	//Load soundeffects
+	auto& audio = AudioManager::getInstance();
+	audio.loadSound("step", RESOURCES_PATH"Audio/Footstep.wav");
+	audio.loadSound("water", RESOURCES_PATH"Audio/Spray.wav");
+	audio.loadSound("harvest", RESOURCES_PATH"Audio/break.wav");
+
+	audio.playMusic(RESOURCES_PATH "Audio/OMORI_OST005.wav");
 
 
 	// ---------------------------------- INIT OBJ  ----------------------------------
@@ -118,6 +125,8 @@ int main()
 		float deltaTimeSeconds = deltaTime.asSeconds();
 		deltaTimeSeconds = std::min(deltaTimeSeconds, 1.f);
 		deltaTimeSeconds = std::max(deltaTimeSeconds, 0.f);
+
+		AudioManager::getInstance().update();
 
 		GameUI::update(window, deltaTime);
 		if (!GameUI::isKeyboardCaptured())

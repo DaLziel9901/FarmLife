@@ -70,6 +70,8 @@ target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
 if(MSVC) # If using the VS compiler...
 
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
+	target_compile_options("${CMAKE_PROJECT_NAME}" PRIVATE /utf-8)
+
 
 
 	#YOU CAN REMOVE THE CONSOLE WITH THIS LINE! YOU CAN EVEN DO AN IF PRODUCTION_BUILD TO REMOVE IT ONLY IN PRODUCTION BUILDS
@@ -80,8 +82,6 @@ if(MSVC) # If using the VS compiler...
 endif()
 
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
-
-
 
 # Link SFML libraries statically, Here wou would add other libraries!
 target_link_libraries("${CMAKE_PROJECT_NAME}" 
@@ -94,3 +94,13 @@ target_link_libraries("${CMAKE_PROJECT_NAME}"
 	ImGui-SFML::ImGui-SFML
 	glad
 )
+
+
+# Copy SFML DLLs to output directory after build (only for Windows dynamic builds)
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            "${CMAKE_SOURCE_DIR}/thirdparty/SFML-2.6.1/extlibs/bin/x64/openal32.dll" 
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Copying OpenAL32.dll to output directory")
+endif()

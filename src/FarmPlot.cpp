@@ -1,5 +1,6 @@
 ﻿#include "FarmPlot.h"
 #include "Crop.h" 
+#include "AudioManager.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
@@ -153,7 +154,10 @@ void FarmPlot::updateSoilTexture()
     if (m_soilState == SoilState::Dry)
         rect = sf::IntRect(0, 0, 32, 32);     // Ô đất khô
     else if (m_soilState == SoilState::Wet)
-        rect = sf::IntRect(32, 0, 32, 32);    // Ô đất ướt (ID = 32)
+    {
+        rect = sf::IntRect(32, 0, 32, 32);    // Ô đất ướt 
+      
+    }
 
     m_sprite.setTextureRect(rect);
 }

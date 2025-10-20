@@ -1,6 +1,7 @@
 ﻿#include "Animation.h"
 #include "player.h"
 #include "Crop.h"
+#include "AudioManager.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -101,6 +102,11 @@ void Player::update(float deltaTime)
     m_sprite.move(m_velocity * PLAYER_SPEED * deltaTime);
     if (m_anim)
         m_anim->update(deltaTime, static_cast<int>(m_direction), m_isMoving);
+    if (m_isMoving)
+    {
+        AudioManager::getInstance().playSound("step");
+    }
+
 }
 
 

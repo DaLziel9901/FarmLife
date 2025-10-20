@@ -2,6 +2,7 @@
 #include "player.h"  
 #include "FarmPlot.h"
 #include "Crop.h"
+#include "AudioManager.h"
 
 namespace GameUI
 {
@@ -22,8 +23,32 @@ namespace GameUI
     void init(sf::RenderWindow& window)
     {
         ImGui::SFML::Init(window);
+
+		//Thay font chữ mặc định
+        ImGuiIO& io = ImGui::GetIO();
+        io.Fonts->Clear(); // Xoá font mặc định
+
+        ImFont* vietnameseFont = io.Fonts->AddFontFromFileTTF(
+            RESOURCES_PATH
+            "Font/Pixel.ttf",
+            18.0f,
+            nullptr,
+            io.Fonts->GetGlyphRangesVietnamese()
+        );
+
+        if (!vietnameseFont)
+        {
+            std::cerr << "[UI] Failed to load font Pixel.ttf\n";
+        }
+        else
+        {
+            std::cout << "[UI] Loaded font Pixel.ttf successfully\n";
+            io.FontDefault = vietnameseFont;
+        }
+        ImGui::SFML::UpdateFontTexture();
+
+
         imguiThemes::red();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.FontGlobalScale = 1.5f;
@@ -253,6 +278,7 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
                 if (!crop.empty())
                 {
                     player.addHarvestedCrop(crop);
+                    AudioManager::getInstance().playSound("harvest");
                     plot.resetToDry();
                 }
             }
@@ -260,6 +286,7 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
             {
                 // Tưới đất
                 plot.water();
+                AudioManager::getInstance().playSound("water");
             }
             else if (plot.isEmpty() && plot.isWatered() && !selectedSeed.empty())
             {
