@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 
+
 //header files
 #include "Crop.h"
 #include "player.h"
@@ -11,14 +12,19 @@
 #include "Map.h"
 #include "Camera.h"
 
+#include "AudioManager.h"
 using namespace FarmGlobals;
 
 int main()
 {
 	// ---------------------------------- INIT WINDOW ----------------------------------
 	sf::RenderWindow window(sf::VideoMode(900, 650), "SFML Farming Game");
-
 	window.setFramerateLimit(60);
+
+	AudioManager audio;
+	audio.loadMusic("resources/Audio/NhacTaiXiu.ogg");
+	// đường dẫn tới file nhạc
+	audio.playMusic(50.f, true); // âm lượng 50%, phát lặp vô hạn
 
 	GameUI::init(window);
 
