@@ -64,12 +64,14 @@ int main()
 		sf::Vector2u(32, 32),
 		"Decor");
 
-
 	loadFarmPlotsFromCSV(
 		RESOURCES_PATH "GameMap/GameMap_FarmPlot.csv",
 		gameFarmPlots,
 		32.f // tile size
 	);
+
+	FarmPlot::s_cropTexture.loadFromFile(RESOURCES_PATH "Tilesets/crops.png");
+
 
 
 	// ---------------------------------- INIT OBJ  ----------------------------------
