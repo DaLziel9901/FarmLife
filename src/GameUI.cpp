@@ -124,20 +124,19 @@ namespace GameUI
             const auto& inventory = player.getInventory();
             for (auto const& [name, data] : CropDatabase)
             {
-                if (inventory.count(name) && inventory.at(name) > 0)
+                if (inventory.count(data.harvestedItem) && inventory.at(data.harvestedItem) > 0)
                 {
-                    if (CropDatabase.count(name))
+                    int count = inventory.at(data.harvestedItem);
+                    ImGui::Text("%s: %d in stock | Sell: %d",
+                        data.harvestedItem.c_str(), count, data.sellPrice);
+                    ImGui::SameLine();
+                    std::string buttonId = "Sell All##" + data.harvestedItem;
+                    if (ImGui::Button(buttonId.c_str()))
                     {
-                        int count = inventory.at(name);
-                        ImGui::Text("%s: %d in stock | Sell: %d", data.name.c_str(), count, data.sellPrice);
-                        ImGui::SameLine();
-                        std::string buttonId = "Sell All##" + name;
-                        if (ImGui::Button(buttonId.c_str()))
-                        {
-                            player.sellCrop(name, count);
-                        }
+                        player.sellCrop(data.harvestedItem, count);
                     }
                 }
+
             }
         }
 

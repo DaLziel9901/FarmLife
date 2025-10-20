@@ -157,25 +157,33 @@ bool Player::buySeed(const std::string& cropName, int count)
 
 bool Player::sellCrop(const std::string& cropName, int count)
 {
-    if (CropDatabase.count(cropName) == 0 || m_inventory.count(cropName) == 0 || m_inventory.at(cropName) < count)
-    {
+    auto it = m_inventory.find(cropName);
+    if (it == m_inventory.end() || it->second < count)
         return false;
+
+    // Tìm crop gốc (seed) tương ứng
+    std::string baseCrop = "";
+    for (auto const& [key, data] : CropDatabase)
+    {
+        if (data.harvestedItem == cropName)
+        {
+            baseCrop = key;
+            break;
+        }
     }
 
-    const auto& data = CropDatabase.at(cropName);
-    long long earned = (long long)data.sellPrice * count;
+    if (baseCrop.empty()) return false;
 
-    m_money += earned;
+    int totalMoney = CropDatabase.at(baseCrop).sellPrice * count;
     m_inventory[cropName] -= count;
+    if (m_inventory[cropName] <= 0) m_inventory.erase(cropName);
 
-    // Nếu bán hết hạt giống đang chọn, đặt lại selectedSeed
-    if (m_inventory[cropName] == 0 && m_selectedSeed == cropName) {
-        m_selectedSeed = "";
-    }
-
-    std::cout << "[Player] Sold " << count << "x " << cropName << ". Earned: " << earned << ". New money: " << m_money << std::endl;
+    m_money += totalMoney;
+    std::cout << "Sold " << count << "x " << cropName
+        << " for " << totalMoney << " coins.\n";
     return true;
 }
+
 
 bool Player::tryPlantSelectedSeed(const std::string& seedName)
 {

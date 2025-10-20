@@ -180,7 +180,7 @@ std::string FarmPlot::harvest()
 {
     if (m_stage == CropStage::Harvestable)
     {
-        std::string harvestedCrop = m_cropName;
+        std::string harvestedCrop = CropDatabase.at(m_cropName).harvestedItem;
         m_cropName = "";
         m_stage = CropStage::Empty;
         m_timeInStage = 0.0f;
