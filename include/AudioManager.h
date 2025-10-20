@@ -1,18 +1,11 @@
 ﻿#pragma once
-#include <SFML/Audio.hpp>
 #include <string>
+#include <vector>
+#include "player.h"
+#include "FarmPlot.h"
 
-class AudioManager
-{
-private:
-    sf::Music music;
-
+class SaveManager {
 public:
-    AudioManager(); // Constructor
-
-    // Chỉ có MỘT phiên bản loadMusic trả về bool
-    bool loadMusic(const std::string& filename);
-
-    // Hàm phát nhạc
-    void playMusic(float volume = 100.f, bool loop = true);
+    static bool saveGame(const Player& player, const std::vector<FarmPlot>& plots, const std::string& filePath);
+    static bool loadGame(Player& player, std::vector<FarmPlot>& plots, const std::string& filePath);
 };
