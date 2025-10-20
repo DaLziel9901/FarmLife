@@ -57,6 +57,7 @@ void loadFarmPlotsFromCSV(const std::string& csvFile,
 }
 
 sf::Texture FarmPlot::s_texture;
+sf::Texture FarmPlot::s_cropTexture;
 
 FarmPlot::FarmPlot(float x, float y, float size)
     : m_stage(CropStage::Empty)
@@ -102,13 +103,21 @@ void FarmPlot::update(float deltaTime)
         // Xử lý chuyển đổi giai đoạn
         if (m_stage == CropStage::Seed && m_timeInStage >= data.seedDuration)
         {
-            m_stage = CropStage::Growing;
+            m_stage = CropStage::GrowingStage1;
             m_timeInStage = 0.0f;
+			updateCropTexture();
         }
-        else if (m_stage == CropStage::Growing && m_timeInStage >= data.growthDuration)
+        else if (m_stage == CropStage::GrowingStage1 && m_timeInStage >= data.growthDuration)
+        {
+            m_stage = CropStage::GrowingStage2;
+            m_timeInStage = 0.0f;
+			updateCropTexture();
+        }
+        else if (m_stage == CropStage::GrowingStage2 && m_timeInStage >= data.growthDuration)
         {
             m_stage = CropStage::Harvestable;
             m_timeInStage = 0.0f;
+			updateCropTexture();
         }
     }
     else
@@ -127,6 +136,8 @@ void FarmPlot::plant(const std::string& cropName)
     m_cropName = cropName;
     m_stage = CropStage::Seed;
     m_timeInStage = 0.0f;
+
+	updateCropTexture();
 }
 
 void FarmPlot::setHighlight(bool value)
@@ -134,7 +145,7 @@ void FarmPlot::setHighlight(bool value)
     m_highlighted = value;
 }
 
-void FarmPlot::updateTexture()
+void FarmPlot::updateSoilTexture()
 {
     // Mỗi tile có kích thước 32x32
     sf::IntRect rect;
@@ -145,6 +156,45 @@ void FarmPlot::updateTexture()
         rect = sf::IntRect(32, 0, 32, 32);    // Ô đất ướt (ID = 32)
 
     m_sprite.setTextureRect(rect);
+}
+
+void FarmPlot::updateCropTexture()
+{
+    if (m_cropName.empty()|| !CropDatabase.count(m_cropName))
+        return;
+
+    const CropData& data = CropDatabase.at(m_cropName);
+	int stageOffset = 0;
+
+    switch (m_stage)
+    {
+    case CropStage::Seed:          stageOffset = 0; break;
+    case CropStage::GrowingStage1: stageOffset = 1; break;
+    case CropStage::GrowingStage2: stageOffset = 2; break;
+    case CropStage::Harvestable:   stageOffset = 3; break;
+    default: return;
+    }
+
+    const int tile_size = 32;
+    const int tilesPerRow = 16;
+
+	int baseID = data.spriteBaseID + stageOffset;
+    int topID = baseID - ( tilesPerRow * (data.spriteHeight - 1));
+
+	int tu = baseID % tilesPerRow;
+	int tv = baseID / tilesPerRow;
+
+	m_cropSprite.setTexture(FarmPlot::s_cropTexture);
+	m_cropSprite.setTextureRect(sf::IntRect(
+        tu * tile_size,
+        (tv - (data.spriteHeight -1)) * tile_size,
+        tile_size,
+		tile_size * data.spriteHeight
+    ));
+
+	sf::Vector2f pos = m_sprite.getPosition();
+	pos.y -= (data.spriteHeight - 1) * tile_size; // Dịch chuyển lên trên
+	m_cropSprite.setPosition(pos);
 }
 
 void FarmPlot::water()
@@ -174,13 +224,14 @@ void FarmPlot::resetToDry()
     int tv = id / tilesPerRow;
 
     m_sprite.setTextureRect(sf::IntRect(tu * 32, tv * 32, 32, 32));
+    updateCropTexture();
 }
 
 std::string FarmPlot::harvest()
 {
     if (m_stage == CropStage::Harvestable)
     {
-        std::string harvestedCrop = m_cropName;
+        std::string harvestedCrop = CropDatabase.at(m_cropName).harvestedItem;
         m_cropName = "";
         m_stage = CropStage::Empty;
         m_timeInStage = 0.0f;
@@ -212,6 +263,10 @@ sf::FloatRect FarmPlot::getGlobalBounds() const
 void FarmPlot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(m_sprite, states);
+    if (m_stage != CropStage::Empty && !m_cropName.empty())
+    {
+        target.draw(m_cropSprite, states);
+	}
 
     if (m_highlighted) {
         sf::RectangleShape overlay;

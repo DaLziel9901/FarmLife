@@ -35,13 +35,17 @@ public:
     void water(); // Tưới nước
     bool isWatered() const;
     void resetToDry();
-	void updateTexture();
+    void updateSoilTexture();
+    void updateCropTexture();
+
+    static sf::Texture s_cropTexture;
 
 private:
     std::string m_cropName;
     CropStage m_stage;
     float m_timeInStage;
     sf::Sprite m_sprite;
+    sf::Sprite m_cropSprite;
     static sf::Texture s_texture;
 
     bool m_highlighted;
