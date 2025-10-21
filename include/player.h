@@ -18,6 +18,7 @@ class Player : public sf::Drawable, public sf::Transformable
 {
 public:
     Player(long long initialMoney, const std::string& startingSeed);
+    ~Player();
 
 	void update(float deltaTime);
     void handleInput();

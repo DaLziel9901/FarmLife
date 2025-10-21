@@ -179,7 +179,6 @@ bool Player::sellCrop(const std::string& cropName, int count)
     return true;
 }
 
-
 bool Player::tryPlantSelectedSeed(const std::string& seedName)
 {
     if (m_inventory.count(seedName) && m_inventory.at(seedName) > 0)
@@ -201,5 +200,15 @@ void Player::setSelectedSeed(const std::string& cropName)
     if (m_inventory.count(cropName) && m_inventory.at(cropName) > 0)
     {
         m_selectedSeed = cropName;
+    }
+}
+
+
+Player::~Player()
+{
+    if (m_anim)
+    {
+        delete m_anim;
+        m_anim = nullptr;
     }
 }
