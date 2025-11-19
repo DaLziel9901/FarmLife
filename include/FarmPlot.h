@@ -51,7 +51,7 @@ private:
     bool m_highlighted;
     SoilState m_soilState;
 
-    // Override draw function from sf::Drawable
+    //draw function from sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

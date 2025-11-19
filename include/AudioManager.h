@@ -16,6 +16,8 @@ public:
     // --- Music (BGM) ---
     bool playMusic(const std::string& name, bool loop = true);
     void stopMusic();
+	void pauseMusic();
+	void resumeMusic();
     void setMusicVolume(float volume);
     float getMusicVolume() const;
     void update();

@@ -28,6 +28,24 @@ void AudioManager::stopMusic()
     m_music.stop();
 }
 
+void AudioManager::pauseMusic()
+{
+    if (m_music.getStatus() == sf::Music::Playing)
+    {
+        m_music.pause();
+    }
+}
+
+void AudioManager::resumeMusic()
+{
+    if (m_music.getStatus() == sf::Music::Paused)
+    {
+        m_music.play();
+        m_music.setVolume(m_musicVolume); // đảm bảo âm lượng đúng
+    }
+}
+
+
 void AudioManager::setMusicVolume(float volume)
 {
     m_musicVolume = volume;

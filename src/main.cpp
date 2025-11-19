@@ -143,6 +143,9 @@ int main()
             // ------------------------------ MENU ---------------------------------------
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
             {
+                // PAUSE NHẠC KHI MỞ MENU TẠM DỪNG
+                audio.pauseMusic();
+
                 MainMenu pauseMenu(window.getSize().x, window.getSize().y);
                 bool backToMenu = true;
                 bool resumeGame = false;
@@ -156,9 +159,12 @@ int main()
                         pauseMenu.handleMouseClick(window, resumeGame, quitGame);
                     }
 
-                    if (resumeGame)
-                        backToMenu = false; // quay lại game
+                    if (resumeGame) {
+                        backToMenu = false;      // quay lại game
+                        audio.resumeMusic();     // tiếp tục nhạc
+                    }
                     if (quitGame) {
+                        audio.stopMusic();       // dừng hẳn nhạc khi thoát game
                         window.close();
                         return 0;
                     }
@@ -168,6 +174,7 @@ int main()
                     window.display();
                 }
             }
+
 		}
 
         // Cập nhật delta time
