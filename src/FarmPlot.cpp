@@ -42,7 +42,7 @@ void loadFarmPlotsFromCSV(const std::string& csvFile,
 
     file.close();
 
-    // Tạo FarmPlot ở những ô có ID khác -1
+    // Tạo FarmPlot thoe id từ file CSV
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             int id = ids[x + y * width];
@@ -71,8 +71,8 @@ FarmPlot::FarmPlot(float x, float y, float size)
 
     m_sprite.setTexture(s_texture);
 
-    const int tilesPerRow = 16; // vì texture 512x512 và mỗi tile 32x32
-    int id = 32; // đất khô
+    const int tilesPerRow = 16; 
+    int id = 32; // id đất khô
     int tu = id % tilesPerRow;
     int tv = id / tilesPerRow;
 
@@ -80,18 +80,16 @@ FarmPlot::FarmPlot(float x, float y, float size)
     m_sprite.setPosition(x, y);
 }
 
-//Phương thức update
+// Update
 void FarmPlot::update(float deltaTime)
 {
     if (m_stage == CropStage::Empty || m_stage == CropStage::Dead || m_cropName.empty())
     {
-        // Không có gì để update
         return;
     }
 
     if (m_stage == CropStage::Harvestable)
     {
-        // Cây đã sẵn sàng thu hoạch, không cần tăng thời gian nữa.
         return;
     }
 
@@ -101,19 +99,21 @@ void FarmPlot::update(float deltaTime)
         const CropData& data = CropDatabase.at(m_cropName);
         m_timeInStage += deltaTime;
 
-        // Xử lý chuyển đổi giai đoạn
+        // Seed -> Stage 1
         if (m_stage == CropStage::Seed && m_timeInStage >= data.seedDuration)
         {
             m_stage = CropStage::GrowingStage1;
             m_timeInStage = 0.0f;
 			updateCropTexture();
         }
+		// Stage 1 -> Stage 2
         else if (m_stage == CropStage::GrowingStage1 && m_timeInStage >= data.growthDuration)
         {
             m_stage = CropStage::GrowingStage2;
             m_timeInStage = 0.0f;
 			updateCropTexture();
         }
+		// Stage 2 -> Harvestable
         else if (m_stage == CropStage::GrowingStage2 && m_timeInStage >= data.growthDuration)
         {
             m_stage = CropStage::Harvestable;
@@ -123,14 +123,12 @@ void FarmPlot::update(float deltaTime)
     }
     else
     {
-        // Xử lý lỗi nếu không tìm thấy CropData (để an toàn)
+		// Báo lỗi nếu không tìm thấy dữ liệu cây trồng
         std::cerr << "Lỗi: Không tìm thấy CropData cho " << m_cropName << std::endl;
         m_stage = CropStage::Empty;
         m_cropName = "";
     }
 }
-
-// Triển khai các chức năng còn lại
 
 void FarmPlot::plant(const std::string& cropName)
 {
@@ -148,14 +146,13 @@ void FarmPlot::setHighlight(bool value)
 
 void FarmPlot::updateSoilTexture()
 {
-    // Mỗi tile có kích thước 32x32
     sf::IntRect rect;
 
     if (m_soilState == SoilState::Dry)
         rect = sf::IntRect(0, 0, 32, 32);     // Ô đất khô
     else if (m_soilState == SoilState::Wet)
     {
-        rect = sf::IntRect(32, 0, 32, 32);    // Ô đất ướt 
+        rect = sf::IntRect(32, 0, 32, 32);    // Ô đất có nước 
       
     }
 
@@ -205,8 +202,8 @@ void FarmPlot::water()
 {
     m_soilState = SoilState::Wet;
 
-    const int tilesPerRow = 16; // 512 / 32
-    int id = 48;                // tile ID cho đất ướt
+    const int tilesPerRow = 16; 
+    int id = 48;                // tile ID cho đất có nước
     int tu = id % tilesPerRow;
     int tv = id / tilesPerRow;
 
@@ -222,7 +219,7 @@ void FarmPlot::resetToDry()
 {
     m_soilState = SoilState::Dry;
 
-    const int tilesPerRow = 16; // 512 / 32
+    const int tilesPerRow = 16;
     int id = 32;                // tile ID cho đất khô
     int tu = id % tilesPerRow;
     int tv = id / tilesPerRow;

@@ -32,7 +32,7 @@ public:
 
     // Tương tác với plot
     void setHighlight(bool value);
-    void water(); // Tưới nước
+    void water(); 
     bool isWatered() const;
     void resetToDry();
     void updateSoilTexture();
@@ -51,7 +51,6 @@ private:
     bool m_highlighted;
     SoilState m_soilState;
 
-    //draw function from sf::Drawable
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 

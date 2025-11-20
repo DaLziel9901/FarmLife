@@ -1,14 +1,12 @@
 ﻿#include "AudioManager.h"
 #include <algorithm>
 
-// --- Singleton Access ---
 AudioManager& AudioManager::getInstance()
 {
     static AudioManager instance;
     return instance;
 }
 
-// --- MUSIC ---
 bool AudioManager::playMusic(const std::string& filePath, bool loop)
 {
     if (!m_music.openFromFile(filePath))
@@ -41,7 +39,7 @@ void AudioManager::resumeMusic()
     if (m_music.getStatus() == sf::Music::Paused)
     {
         m_music.play();
-        m_music.setVolume(m_musicVolume); // đảm bảo âm lượng đúng
+        m_music.setVolume(m_musicVolume);
     }
 }
 
@@ -57,7 +55,6 @@ float AudioManager::getMusicVolume() const
     return m_musicVolume;
 }
 
-// --- SOUND EFFECTS ---
 void AudioManager::loadSound(const std::string& name, const std::string& filePath)
 {
     sf::SoundBuffer buffer;

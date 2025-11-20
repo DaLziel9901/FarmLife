@@ -3,7 +3,7 @@
 
 MainMenu::MainMenu(float width, float height)
 {
-    // ---------- ẢNH NỀN ----------
+    // background
     if (!backgroundTexture.loadFromFile(RESOURCES_PATH "Images/menu_background.png")) {
         std::cerr << "Không load được ảnh nền!" << std::endl;
     }
@@ -15,7 +15,6 @@ MainMenu::MainMenu(float width, float height)
         );
     }
 
-    // ---------- 3 NÚT: NewGame, Continue, Exit ----------
     const std::vector<std::string> buttonNames = { "NewGame", "Continue", "Exit" };
     const float scale = 0.55f;
     const float spacing = 130.f;
@@ -63,14 +62,12 @@ void MainMenu::handleMouseClick(sf::RenderWindow& window, bool& startGame, bool&
 
             if (btn.name == "NewGame") {
                 startGame = true;
-                std::cout << "Bắt đầu trò chơi mới!\n";
             }
             else if (btn.name == "Continue") {
-                std::cout << "Continue (chưa hoạt động)\n";
+                // REMIND: VIẾT CHỨC NĂNG CONTINUE.
             }
             else if (btn.name == "Exit") {
                 exitGame = true;
-                std::cout << "Thoát trò chơi!\n";
             }
         }
     }

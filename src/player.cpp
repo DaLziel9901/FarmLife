@@ -14,12 +14,12 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
     if (!m_texture.loadFromFile(RESOURCES_PATH "Sprite/farmer.png"))
     {
 		std::cerr << "[Player] Error loading farmer.png" << std::endl;
-		//Thiết lập kích thước sprite mặc định nếu không load được hình
+		// Set sprite mặc định
 		m_sprite.setTextureRect(sf::IntRect(0, 0, 32, 64));
     }
     else
     {
-		// Thiết lập sprite với texture đã load
+		// Set sprite với texture đã load
 		std::cout << "[Player] Successfully loaded farmer.png" << std::endl;
 		m_sprite.setTexture(m_texture);
         m_sprite.setTextureRect(sf::IntRect(0, 0, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT));
@@ -27,14 +27,14 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
         //Scale
 		m_sprite.setScale(1.0f, 1.0f);
 
-        m_sprite.setOrigin(PLAYER_FRAME_WIDTH / 2.f, PLAYER_FRAME_HEIGHT / 2.f); // Trung tâm sprite
+        m_sprite.setOrigin(PLAYER_FRAME_WIDTH / 2.f, PLAYER_FRAME_HEIGHT / 2.f); 
     }
 
-    // Thiết lập vị trí ban đầu của player
+    //Set vị trí khởi đầu player
     m_sprite.setPosition(466.0f, 545.0f);
     setPosition(m_sprite.getPosition());
 
-    // Cấp cho người chơi 5 hạt giống loại ban đầu
+    //Inventory khởi đầu
     if (CropDatabase.count(startingSeed)) {
         m_inventory[startingSeed] = 5;
         m_selectedSeed = startingSeed;
@@ -46,7 +46,6 @@ Player::Player(long long initialMoney, const std::string& startingSeed)
     m_anim = new Animation(m_sprite, 32, 64, 0.15f);
 }
 
-// --- Logic di chuyển người chơi ---
 void Player::handleInput()
 {
 	// Reset vận tốc every frame
@@ -98,7 +97,6 @@ void Player::handleInput()
 
 void Player::update(float deltaTime)
 {
-    // Cập nhật vị trí người chơi dựa trên vận tốc và thời gian delta
     m_sprite.move(m_velocity * PLAYER_SPEED * deltaTime);
     if (m_anim)
         m_anim->update(deltaTime, static_cast<int>(m_direction), m_isMoving);
@@ -107,7 +105,6 @@ void Player::update(float deltaTime)
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	//Vẽ sprite người chơi
     target.draw(m_sprite, states);
 }
 
@@ -143,7 +140,6 @@ bool Player::buySeed(const std::string& cropName, int count)
         m_money -= cost;
         m_inventory[cropName] += count;
 
-        // Tự động chọn hạt giống vừa mua nếu chưa có hạt nào được chọn
         if (m_selectedSeed.empty() || m_inventory.count(m_selectedSeed) == 0 || m_inventory.at(m_selectedSeed) == 0) {
             m_selectedSeed = cropName;
         }
@@ -158,7 +154,6 @@ bool Player::sellCrop(const std::string& cropName, int count)
     if (it == m_inventory.end() || it->second < count)
         return false;
 
-    // Tìm crop gốc (seed) tương ứng
     std::string baseCrop = "";
     for (auto const& [key, data] : CropDatabase)
     {

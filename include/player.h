@@ -24,19 +24,17 @@ public:
     void handleInput();
 
 
-	// --- Inven & Money Methods ---
     // Getters
     long long getMoney() const;
     const std::map<std::string, int>& getInventory() const;
     const std::string& getSelectedSeed() const;
 	const sf::Sprite& getSprite() const { return m_sprite; }
 
-    // Actions
+	// Actions
     void addMoney(long long amount);
     bool buySeed(const std::string& cropName, int count = 1);
     bool sellCrop(const std::string& cropName, int count = 1);
 
-    // Logic tương tác với đất
     bool tryPlantSelectedSeed(const std::string& seedName);
     void addHarvestedCrop(const std::string& cropName);
     void setSelectedSeed(const std::string& cropName);
@@ -50,14 +48,11 @@ private:
     std::map<std::string, int> m_inventory;
     std::string m_selectedSeed;
 
-	//---Movement---
 	sf::Vector2f m_velocity; // Vận tốc hiện tại
 	bool m_isMoving; // Trạng thái di chuyển
 
-    // Vẽ người chơi
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-	// Animation and Direction
     Direction m_direction;
     Animation* m_anim;
 };

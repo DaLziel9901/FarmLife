@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 
-// ImGui includes
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "imguiThemes.h"

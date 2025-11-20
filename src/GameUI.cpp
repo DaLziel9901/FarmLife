@@ -72,18 +72,16 @@ namespace GameUI
         if (showInventory)
         {
             ImGui::SetNextWindowPos(ImVec2(550, 50), ImGuiCond_Once);
-            ImGui::Begin("Shop & Inventory");
+            ImGui::Begin("Túi đồ & Shop");
 
-            ImGui::Text(" Money: %lld", player.getMoney());
+            ImGui::Text(" Số tiền: %lld", player.getMoney());
             ImGui::Separator();
 
 
-            // --- SEED SELECTION ---
             const std::string& selectedSeed = player.getSelectedSeed();
             std::string displaySeed = "NONE";
             const auto& inventory = player.getInventory();
 
-            // Nếu còn hạt thì hiển thị tên, nếu hết thì reset về NONE
             if (!selectedSeed.empty())
             {
                 auto it = inventory.find(selectedSeed);
@@ -93,17 +91,16 @@ namespace GameUI
                 }
                 else
                 {
-                    // Nếu hạt đang chọn đã hết thì reset
                     if (!player.getSelectedSeed().empty())
                         player.setSelectedSeed("");
                 }
             }
 
-            ImGui::Text("Current Seed:");
+            ImGui::Text("Số hạt giống hiện tại:");
             ImGui::SameLine();
             ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s", displaySeed.c_str());
 
-            if (ImGui::CollapsingHeader("Seed Selection"))
+            if (ImGui::CollapsingHeader("Chọn hạt giống"))
             {
                 const auto& inventory = player.getInventory();
                 const std::string& selectedSeed = player.getSelectedSeed();
@@ -113,22 +110,22 @@ namespace GameUI
                     int count = inventory.count(name) ? inventory.at(name) : 0;
                     bool isSelected = (name == selectedSeed);
 
-                    // Đặt màu nền đặc biệt cho loại đang chọn
+                    // Màu nền 
                     if (isSelected)
                         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.7f, 0.3f, 1.0f));
 
-                    // Nếu hết hạt => disable button
+                    // Disable nếu hết hạt
                     if (count <= 0)
                     {
                         ImGui::BeginDisabled();
-                        ImGui::Button((name + " Seeds (" + std::to_string(count) + ")").c_str(), ImVec2(180, 0));
+                        ImGui::Button(( "Hạt giống " + name + "(" + std::to_string(count) + ")").c_str(), ImVec2(180, 0));
                         ImGui::SameLine();
-                        ImGui::TextDisabled("Out of seeds!");
+                        ImGui::TextDisabled("Hết hạt giống!");
                         ImGui::EndDisabled();
                     }
                     else
                     {
-                        std::string label = data.name + " Seeds (" + std::to_string(count) + ")";;
+                        std::string label =  "Hạt giống " + data.name + "(" + std::to_string(count) + ")";;
                         if (ImGui::Button(label.c_str(), ImVec2(180, 0)))
                         {
                             player.setSelectedSeed(name);
@@ -144,13 +141,13 @@ namespace GameUI
             ImGui::Separator();
 
             // --- BUY SEEDS (Shop) ---
-            if (ImGui::CollapsingHeader("Buy Seeds"))
+            if (ImGui::CollapsingHeader("Mua hạt giống"))
             {
                 for (auto const& [name, data] : CropDatabase)
                 {
-                    ImGui::Text("%s - Price: %d", data.name.c_str(), data.seedPrice);
+                    ImGui::Text("%s - Giá: %d", data.name.c_str(), data.seedPrice);
                     ImGui::SameLine();
-                    std::string buttonId = "Buy 1x##" + name;
+                    std::string buttonId = "Mua 1x##" + name;
                     if (ImGui::Button(buttonId.c_str()))
                     {
                         player.buySeed(name, 1);
@@ -160,8 +157,7 @@ namespace GameUI
 
             ImGui::Separator();
 
-            // --- SELL CROPS ---
-            if (ImGui::CollapsingHeader("Sell Crops"))
+            if (ImGui::CollapsingHeader("Bán cây"))
             {
                 const auto& inventory = player.getInventory();
                 for (auto const& [name, data] : CropDatabase)
@@ -169,10 +165,10 @@ namespace GameUI
                     if (inventory.count(data.harvestedItem) && inventory.at(data.harvestedItem) > 0)
                     {
                         int count = inventory.at(data.harvestedItem);
-                        ImGui::Text("%s: %d in stock | Sell: %d",
+                        ImGui::Text("%s: %d trong túi đồ | Giá: %d",
                             data.harvestedItem.c_str(), count, data.sellPrice);
                         ImGui::SameLine();
-                        std::string buttonId = "Sell All##" + data.harvestedItem;
+                        std::string buttonId = "Bán hết##" + data.harvestedItem;
                         if (ImGui::Button(buttonId.c_str()))
                         {
                             player.sellCrop(data.harvestedItem, count);
@@ -185,7 +181,7 @@ namespace GameUI
             ImGui::End();
         }
         
-        // **Farm Tilemap Debug Window**
+        // Debug
         if (showFarmDebug)
         {
             ImGui::SetNextWindowPos(ImVec2(550, 400), ImGuiCond_Once);
@@ -265,7 +261,8 @@ void handlePlotInteraction(sf::RenderWindow& window, const sf::Event::MouseButto
     {
         if (plot.getGlobalBounds().contains(mousePos))
         {
-            /*std::cout << "Hit plot at: ("
+            //debug
+            /*std::cout << "Da an o: ("
                 << plot.getGlobalBounds().left << ", "
                 << plot.getGlobalBounds().top << ")\n";*/
 

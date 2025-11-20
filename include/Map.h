@@ -4,7 +4,6 @@
 #include <string>
 #include "Tile.h"
 
-// ====================== CLASS MAP ======================
 class Map : public sf::Drawable {
 public:
     Map();
@@ -19,13 +18,12 @@ public:
         sf::Vector2u tileSize,
         const std::string& layerName = "");
 
-    void update(float deltaTime); // update animation tile (nếu có)
-    void clear();                 // xóa map hoặc reset
+    void update(float deltaTime); // update animation tile
+    void clear();                 // xóa map
 
     unsigned int getWidth() const { return m_width; }
     unsigned int getHeight() const { return m_height; }
 
-    // Truy xuất tile
     Tile& getTile(unsigned int x, unsigned int y);
     const Tile& getTile(unsigned int x, unsigned int y) const;
 
@@ -37,7 +35,7 @@ private:
     {
         std::string name;
         sf::VertexArray vertices;
-        sf::Texture texture;                  // texture của Layer đó
+        sf::Texture texture;                  // texture Layer đó
         sf::Vector2u tileSize;                // Kích thước mỗi tile
         unsigned int width = 0, height = 0;   // Số lượng ô theo X, Y
     };

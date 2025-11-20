@@ -35,7 +35,6 @@ int main()
                 window.close();
                 return 0;
             }
-            // Cho phép MainMenu xử lý click
             menu.handleMouseClick(window, startGame, exitGame);
         }
 
@@ -57,6 +56,7 @@ int main()
 	camera.setZoom(0.5f);
 	std::vector<FarmPlot> gameFarmPlots;
 
+	// ---------------------------------- LOAD MAP & RESOURCES ----------------------------------
     gameMap.loadFromCSV(
         RESOURCES_PATH "GameMap/GameMap_WaterLevel.csv",
         RESOURCES_PATH "Tilesets/Terrain.png",
@@ -143,7 +143,6 @@ int main()
             // ------------------------------ MENU ---------------------------------------
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
             {
-                // PAUSE NHẠC KHI MỞ MENU TẠM DỪNG
                 audio.pauseMusic();
 
                 MainMenu pauseMenu(window.getSize().x, window.getSize().y);
@@ -177,7 +176,7 @@ int main()
 
 		}
 
-        // Cập nhật delta time
+        // delta time
         sf::Time deltaTime = clock.restart();
         float deltaTimeSeconds = std::clamp(deltaTime.asSeconds(), 0.f, 1.f);
 

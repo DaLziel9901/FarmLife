@@ -21,9 +21,9 @@ struct CropData
 	int seedDuration; // Thời gian hạt giống
 	int seedPrice;      // Giá mua
 	int sellPrice;      // Giá bán 
-	float growthDuration; // Time for grow
-	std::string harvestedItem; // Item khi thu hoạch
-	int spriteBaseID; // ID cơ sở trong tileset
+	float growthDuration; // Thời gian phát triển
+	std::string harvestedItem; // Item thu hoạch
+	int spriteBaseID; // ID trong tileset
 	int spriteHeight; // Chiều cao sprite
 };
 
